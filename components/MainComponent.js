@@ -29,7 +29,7 @@ const DirectoryNavigator = createStackNavigator(
             headerLeft: <Icon
                 name='list'
                 type='font-awesome'
-                iconStyle={StyleSheet.stackIcon}
+                iconStyle={styles.stackIcon}
                 onPress={() => navigation.toggleDrawer()}
             />
         })
