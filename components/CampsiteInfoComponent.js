@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Text, View, ScrollView, FlatList,
      Modal, Button, StyleSheet,
      Alert, PanResponder } from 'react-native';
-     //Share ^^
 import { Card, Icon, Input, Rating } from 'react-native-elements';
 import { connect } from 'react-redux';
 import { baseUrl } from '../shared/baseUrl';

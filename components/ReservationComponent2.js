@@ -43,10 +43,13 @@ class Reservation extends Component {
                 },
                 {
                     text: 'OK',
-                    onPress: () => this.resetForm()
                     // FIX: Incorrect button style
-                    // Don't assign the cancel style to this button or your app
+                    // Don't assign the canc el style to this button or your app
                     // will treat both the cance and this button as cancel buttons.
+                    // I will comment it out for you...
+                    /* style: 'cancel', */
+                    // END FIX
+                    onPress: () => this.resetForm()
                 }
             ],
             { cancelable: false }
