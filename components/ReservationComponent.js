@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import {
-    Text, View, ScrollView, StyleSheet, Alert,
-     Switch, Button
-} from 'react-native';
+import { Text, View, ScrollView, StyleSheet,
+     Switch, Button, Alert } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Animatable from 'react-native-animatable';
+import * as Notifications from 'expo-notifications';
 
 class Reservation extends Component {
 
@@ -17,7 +16,6 @@ class Reservation extends Component {
             hikeIn: false,
             date: new Date(),
             showCalendar: false,
-
         };
     }
 
@@ -27,26 +25,27 @@ class Reservation extends Component {
 
     handleReservation() {
         console.log(JSON.stringify(this.state));
-
-        let message = `Number of Campers: ${this.state.campers}\n\n` +
-            `Hike-In?: ${this.state.hikeIn}\n\n` +
-            `Date: ${this.state.date}`;
-
+        const message = `Number of Campers: ${this.state.campers}\n
+                        \nHike-In?: ${this.state.hikeIn}\n
+                        \nDate: ${this.state.date.toLocaleDateString('en-US')}`;
         Alert.alert(
             'Begin Search?',
             message,
             [
                 {
                     text: 'Cancel',
-                    style: 'cancel',
-                    onPress: () => this.resetForm()
+                    onPress: () => {
+                        console.log('Reservation Search Canceled');
+                        this.resetForm();
+                    },
+                    style: 'cancel'
                 },
                 {
                     text: 'OK',
-                    onPress: () => this.resetForm()
-                    // FIX: Incorrect button style
-                    // Don't assign the cancel style to this button or your app
-                    // will treat both the cance and this button as cancel buttons.
+                    onPress: () => {
+                        this.presentLocalNotification(this.state.date.toLocaleDateString('en-US'));
+                        this.resetForm();
+                    }
                 }
             ],
             { cancelable: false }
@@ -60,6 +59,32 @@ class Reservation extends Component {
             date: new Date(),
             showCalendar: false
         });
+    }
+
+    async presentLocalNotification(date) {
+        function sendNotification() {
+            Notifications.setNotificationHandler({
+                handleNotification: async () => ({
+                    shouldShowAlert: true
+                })
+            });
+
+            Notifications.scheduleNotificationAsync({
+                content: {
+                    title: 'Your Campsite Reservation Search',
+                    body: `Search for ${date} requested`
+                },
+                trigger: null
+            });
+        }
+
+        let permissions = await Notifications.getPermissionsAsync();
+        if (!permissions.granted) {
+            permissions = await Notifications.requestPermissionsAsync();
+        }
+        if (permissions.granted) {
+            sendNotification();
+        }
     }
 
     render() {
