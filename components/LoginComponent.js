@@ -6,9 +6,9 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { baseUrl } from '../shared/baseUrl';
+import * as ImageManipulator from 'expo-image-manipulator';
 
 class LoginTab extends Component {
-
     constructor(props) {
         super(props);
 
@@ -22,12 +22,8 @@ class LoginTab extends Component {
     static navigationOptions = {
         title: 'Login',
         tabBarIcon: ({tintColor}) => (
-            <Icon
-                name='sign-in'
-                type='font-awesome'
-                iconStyle={{color: tintColor}}
-            />
-        )
+            <Icon name='sign-in' type='font-awesome' iconStyle={{color: tintColor}}/>
+        ),
     }
 
     handleLogin() {
@@ -49,8 +45,7 @@ class LoginTab extends Component {
 
     componentDidMount() {
         SecureStore.getItemAsync('userinfo')
-            .then(userdata => {
-                const userinfo = JSON.parse(userdata);
+            .then(userdata => { const userinfo = JSON.parse(userdata);
                 if (userinfo) {
                     this.setState({username: userinfo.username});
                     this.setState({password: userinfo.password});
@@ -122,7 +117,6 @@ class LoginTab extends Component {
 }
 
 class RegisterTab extends Component {
-
     constructor(props) {
         super(props);
 
@@ -140,12 +134,8 @@ class RegisterTab extends Component {
     static navigationOptions = {
         title: 'Register',
         tabBarIcon: ({tintColor}) => (
-            <Icon
-                name='user-plus'
-                type='font-awesome'
-                iconStyle={{color: tintColor}}
-            />
-        )
+            <Icon name='user-plus' type='font-awesome' iconStyle={{color: tintColor}}/>
+        ),
     }
 
     getImageFromCamera = async () => {
@@ -159,17 +149,27 @@ class RegisterTab extends Component {
             });
             if (!capturedImage.cancelled) {
                 console.log(capturedImage);
-                this.setState({imageUrl: capturedImage.uri});
+                this.processImage(capturedImage.uri);
             }
         }
     }
+
+    processImage = async(imgUri) => {
+        const processedImage = await ImageManipulator.manipulateAsync(
+            imgUri,
+            [{ resize: { width: 400 } }],
+            { format: ImageManipulator.SaveFormat.PNG }
+        );
+        console.log(processedImage);
+        this.setState({ imageUrl: processedImage.uri });
+    };
 
     handleRegister() {
         console.log(JSON.stringify(this.state));
         if (this.state.remember) {
             SecureStore.setItemAsync('userinfo', JSON.stringify(
                 {username: this.state.username, password: this.state.password}))
-                .catch(error => console.log('Could not save user info', error));
+                .catch((error) => console.log('Could not save user info', error));
         } else {
             SecureStore.deleteItemAsync('userinfo').catch(
                 error => console.log('Could not delete user info', error)
